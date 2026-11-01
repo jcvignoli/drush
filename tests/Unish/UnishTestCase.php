@@ -14,15 +14,15 @@ abstract class UnishTestCase extends TestCase {
    */
   private static $sites = array();
 
-  function __construct($name = NULL, array $data = array(), $dataName = '') {
-    parent::__construct($name, $data, $dataName);
-  }
 
   /**
    * Assure that each class starts with an empty sandbox directory and
    * a clean environment - http://drupal.org/node/1103568.
    */
   public static function set_up_before_class() {
+    if (!defined('UNISH_DRUSH_TESTS_RUNNING')) {
+      require_once dirname(__DIR__) . '/bootstrap.inc';
+    }
     self::setUpFreshSandBox();
   }
 

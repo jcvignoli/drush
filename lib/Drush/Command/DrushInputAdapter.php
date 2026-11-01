@@ -51,15 +51,16 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getFirstArgument()
+    public function getFirstArgument(): ?string
     {
-        return reset($this->arguments);
+        $first = reset($this->arguments);
+        return $first !== false && $first !== null ? (string)$first : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasParameterOption($values, $onlyParams = false)
+    public function hasParameterOption($values, $onlyParams = false): bool
     {
         $values = (array) $values;
 
@@ -75,7 +76,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getParameterOption($values, $default = false, $onlyParams = false)
+    public function getParameterOption($values, $default = false, $onlyParams = false): mixed
     {
         $values = (array) $values;
 
@@ -91,7 +92,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function bind(InputDefinition $definition)
+    public function bind(InputDefinition $definition): void
     {
         // no-op: this class exists to avoid validation
     }
@@ -99,7 +100,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function validate()
+    public function validate(): void
     {
         // no-op: this class exists to avoid validation
     }
@@ -107,7 +108,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getArguments()
+    public function getArguments(): array
     {
         return $this->arguments;
     }
@@ -115,7 +116,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getArgument($name)
+    public function getArgument($name): mixed
     {
         // TODO: better to throw if an argument that does not exist is requested?
         return isset($this->arguments[$name]) ? $this->arguments[$name] : '';
@@ -124,7 +125,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function setArgument($name, $value)
+    public function setArgument($name, $value): void
     {
         $this->arguments[$name] = $value;
     }
@@ -132,7 +133,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function hasArgument($name)
+    public function hasArgument($name): bool
     {
         return isset($this->arguments[$name]);
     }
@@ -140,7 +141,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -148,15 +149,15 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function getOption($name)
+    public function getOption($name): mixed
     {
-        return $this->options[$name];
+        return $this->options[$name] ?? null;
     }
 
     /**
      *  {@inheritdoc}
      */
-    public function setOption($name, $value)
+    public function setOption($name, $value): void
     {
         $this->options[$name] = $value;
     }
@@ -164,7 +165,7 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function hasOption($name)
+    public function hasOption($name): bool
     {
         return isset($this->options[$name]);
     }
@@ -172,16 +173,21 @@ class DrushInputAdapter implements InputInterface
     /**
      *  {@inheritdoc}
      */
-    public function isInteractive()
+    public function isInteractive(): bool
     {
-        return $this->interactive;
+        return (bool) $this->interactive;
     }
 
     /**
      *  {@inheritdoc}
      */
-    public function setInteractive($interactive)
+    public function setInteractive($interactive): void
     {
         $this->interactive = $interactive;
+    }
+
+    public function __toString(): string
+    {
+        return '';
     }
 }

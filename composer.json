@@ -28,46 +28,33 @@
     "drush.complete.sh"
   ],
   "require": {
-    "php": ">=8.3",
-    "psr/log": "~1.0",
-    "psy/psysh": "~0.11",
-    "consolidation/annotated-command": "^2.12.0",
-    "consolidation/output-formatters": "~3",
-    "symfony/yaml": "^3 || ^4",
-    "symfony/var-dumper": "^3 || ^4",
-    "symfony/console": "^3 || ^4",
-    "symfony/event-dispatcher": "^3 || ^4",
-    "symfony/finder": "^3 || ^4",
-    "symfony/process": "^3 || ^4",
-    "pear/console_table": "~1.3.1",
-    "webflo/drupal-finder": "^1.1.0",
-    "webmozart/path-util": "~2"
+    "php": ">=8.4",
+    "psr/log": "@stable",
+    "psy/psysh": "@stable",
+    "consolidation/annotated-command": "@stable",
+    "consolidation/output-formatters": "@stable",
+    "symfony/yaml": "@stable",
+    "symfony/var-dumper": "@stable",
+    "symfony/console": "@stable",
+    "symfony/event-dispatcher": "@stable",
+    "symfony/finder": "@stable",
+    "symfony/process": "@stable",
+    "webflo/drupal-finder": "@stable",
+    "symfony/filesystem": "@stable"
   },
   "require-dev": {
-    "symfony/yaml": "^3 || ^4",
-    "symfony/process": "^3 || ^4",
-    "phpunit/phpunit": "^9"
+    "phpunit/phpunit": "@stable",
+    "yoast/phpunit-polyfills": "@stable"
   },
   "suggest": {
       "ext-pcntl": "*",
       "drush/config-extra": "Provides configuration workflow commands, such as config-merge."
   },
-  "config": {
-    "audit": {
-        "ignore": [
-            "PKSA-xz3r-9gp4-4m1z",
-            "PKSA-v5yj-8nmz-sk2q",
-            "PKSA-ft77-7h5f-p3r6",
-            "PKSA-b14r-zh1d-vdrc",
-            "PKSA-rkkf-636k-qjb3",
-            "PKSA-wws7-mr54-jsny"
-        ]
-    }
-  },
   "autoload": {
     "psr-0": {
       "Drush\\":        "lib/",
-      "Consolidation\\": "lib/"
+      "Consolidation\\": "lib/",
+      "Console_":       "lib/"
     },
     "psr-4": {
       "Drush\\":      "src/"
@@ -79,11 +66,12 @@
     }
   },
   "scripts": {
+    "test": "phpunit tests --configuration tests",
     "phar:install-tools": "curl -L https://github.com/box-project/box/releases/download/4.3.7/box.phar --output box.phar",
     "phar:build": "composer install -n --no-dev && php box.phar compile",
     "lint": [
       "find includes -name '*.inc' -print0 | xargs -0 -n1 php -l",
-      "find lib/Drush -name '*.php' -print0 | xargs -0 -n1 php -l"
+      "find lib -name '*.php' -print0 | xargs -0 -n1 php -l"
     ]
   },
   "extra": {
@@ -92,3 +80,4 @@
     }
   }
 }
+

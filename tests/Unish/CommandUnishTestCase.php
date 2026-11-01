@@ -178,7 +178,11 @@ abstract class CommandUnishTestCase extends UnishTestCase {
 
     try {
       // Process uses a default timeout of 60 seconds, set it to 0 (none).
-      $this->process = new Process($command, $cd, NULL, $input, 0);
+      if (is_string($command) && method_exists(Process::class, 'fromShellCommandline')) {
+        $this->process = Process::fromShellCommandline($command, $cd, NULL, $input, 0);
+      } else {
+        $this->process = new Process($command, $cd, NULL, $input, 0);
+      }
       if (!getenv('UNISH_NO_TIMEOUTS')) {
         $this->process->setTimeout($this->timeout)
           ->setIdleTimeout($this->idleTimeout);
@@ -256,11 +260,13 @@ abstract class CommandUnishTestCase extends UnishTestCase {
     // Insert code coverage argument before command, in order for it to be
     // parsed as a global option. This matters for commands like ssh and rsync
     // where options after the command are passed along to external commands.
-    $result = $this->getTestResultObject();
-    if ($result->getCollectCodeCoverageInformation()) {
-      $coverage_file = tempnam(UNISH_TMP, 'drush_coverage');
-      if ($coverage_file) {
-        $cmd[] = "--drush-coverage=" . $coverage_file;
+    if (method_exists($this, 'getTestResultObject')) {
+      $result = $this->getTestResultObject();
+      if ($result && method_exists($result, 'getCollectCodeCoverageInformation') && $result->getCollectCodeCoverageInformation()) {
+        $coverage_file = tempnam(UNISH_TMP, 'drush_coverage');
+        if ($coverage_file) {
+          $cmd[] = "--drush-coverage=" . $coverage_file;
+        }
       }
     }
 

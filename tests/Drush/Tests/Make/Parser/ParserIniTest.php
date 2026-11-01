@@ -3,7 +3,7 @@
 namespace Drush\Tests\Make\Parser;
 
 use Drush\Make\Parser\ParserIni;
-
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -24,6 +24,7 @@ class ParserIniTest extends TestCase {
    * @dataProvider providerParse
    * @covers ::parse
    */
+  #[DataProvider('providerParse')]
   public function testParse($ini, $expected) {
     $parsed = ParserIni::parse($ini);
     $this->assertSame($expected, $parsed);
@@ -32,7 +33,7 @@ class ParserIniTest extends TestCase {
   /**
    * Provides INI snippets to test the parser.
    */
-  public function providerParse() {
+  public static function providerParse() {
     $snippets[] = array('foo[bar][baz] = one', array('foo' => array('bar' => array('baz' => 'one'))));
     $snippets[] = array("; A comment should not be part of the returned array\nprojects[] = drupal", array('projects' => array('drupal')));
 

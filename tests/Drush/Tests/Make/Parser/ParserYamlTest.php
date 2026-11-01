@@ -3,7 +3,7 @@
 namespace Drush\Tests\Make\Parser;
 
 use Drush\Make\Parser\ParserYaml;
-
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -25,6 +25,7 @@ class ParserYamlTest extends TestCase {
    * @dataProvider providerParse
    * @covers ::parse
    */
+  #[DataProvider('providerParse')]
   public function testParse($yaml, $expected) {
     $parsed = ParserYaml::parse($yaml);
     $this->assertSame($expected, $parsed);
@@ -33,7 +34,7 @@ class ParserYamlTest extends TestCase {
   /**
    * Provides YAML snippets to test the parser.
    */
-  public function providerParse() {
+  public static function providerParse() {
     $yaml = <<<'YAML'
 foo:
   bar:

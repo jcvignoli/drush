@@ -93,7 +93,11 @@ trait CliTestTrait
     {
         try {
             // Process uses a default timeout of 60 seconds, set it to 0 (none).
-            $this->process = new Process($command, $cd, $env, $input, 0);
+            if (is_string($command) && method_exists(Process::class, 'fromShellCommandline')) {
+                $this->process = Process::fromShellCommandline($command, $cd, $env, $input, 0);
+            } else {
+                $this->process = new Process($command, $cd, $env, $input, 0);
+            }
             $this->process->inheritEnvironmentVariables(true);
             if ($this->timeout) {
                 $this->process->setTimeout($this->timeout)
