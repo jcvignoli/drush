@@ -11,7 +11,7 @@ namespace Unish;
  *  @group slow
  *  @group pm
  */
-class EnDisUnListInfoCase extends CommandUnishTestCase {
+class pmEnDisUnListInfoTest extends CommandUnishTestCase {
 
   public function testEnDisUnList() {
     $moduleToTest = 'devel';

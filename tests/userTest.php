@@ -6,7 +6,7 @@ namespace Unish;
  *  @group slow
  *  @group commands
  */
-class userCase extends CommandUnishTestCase {
+class userTest extends CommandUnishTestCase {
 
   const NAME = 'example';
   private static $authenticated;

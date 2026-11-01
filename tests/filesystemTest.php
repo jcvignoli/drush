@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group base
  */
-class FilesystemCase extends CommandUnishTestCase {
+class filesystemTest extends CommandUnishTestCase {
 
   public function testSbit() {
     if ($this->is_windows()) {
@@ -44,4 +44,3 @@ class FilesystemCase extends CommandUnishTestCase {
     $this->assertEquals($perms, 0111, 'Execute permission is preserved.');
   }
 }
-

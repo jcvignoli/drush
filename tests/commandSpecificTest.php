@@ -10,7 +10,7 @@ namespace Unish;
 *
 *  @group base
 */
-class commandSpecificCase extends CommandUnishTestCase {
+class commandSpecificTest extends CommandUnishTestCase {
 
   /**
    * Try to write a tiny drushrc.php to each place that drush checks. Also

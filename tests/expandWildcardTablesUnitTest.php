@@ -9,7 +9,7 @@ namespace Unish;
   * @group base
   * @group sql
   */
-class WildcardUnitCase extends UnitUnishTestCase {
+class expandWildcardTablesUnitTest extends UnitUnishTestCase {
 
   public static function set_up_before_class() {
     parent::set_up_before_class();

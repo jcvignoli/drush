@@ -11,7 +11,7 @@ namespace Unish;
  *  @group slow
  *  @group pm
  */
-class pmUpdateStatus extends CommandUnishTestCase {
+class pmUpdateStatusTest extends CommandUnishTestCase {
 
   /**
    * Setup the test environment.
@@ -184,4 +184,3 @@ class pmUpdateStatus extends CommandUnishTestCase {
     $this->assertArrayNotHasKey('devel', $data, "devel module not present in pm-updatestatus output");
   }
 }
-

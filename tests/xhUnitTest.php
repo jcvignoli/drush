@@ -2,18 +2,21 @@
 
 namespace Unish;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Unit tests for xh.drush.inc.
  *
  * @group base
  */
-class xhUnitCase extends UnitUnishTestCase {
+class xhUnitTest extends UnitUnishTestCase {
 
   /**
    * Test various combinations of XHProf flag options.
    *
    * @dataProvider xhOptionProvider
    */
+  #[DataProvider('xhOptionProvider')]
   public function testFlags($name, $options, $expected) {
     drush_preflight();
     foreach ($options as $option_name => $option_value) {
@@ -25,7 +28,7 @@ class xhUnitCase extends UnitUnishTestCase {
   /**
    * Provides drush XHProf options and the results we expect from xh_flags().
    */
-  public function xhOptionProvider() {
+  public static function xhOptionProvider() {
 
     if (!defined('XHPROF_FLAGS_NO_BUILTINS')) {
       define('XHPROF_FLAGS_NO_BUILTINS', 1);

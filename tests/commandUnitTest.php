@@ -4,12 +4,12 @@ namespace Unish;
 
 use Symfony\Component\Filesystem\Path;
 
-class commandUnitCase extends UnitUnishTestCase {
+class commandUnitTest extends UnitUnishTestCase {
   /**
    * Assure that matching version-specific command files are loaded and others are ignored.
    */
   function testCommandVersionSpecific() {
-    $path = Path::join(UNISH_SANDBOX, 'commandUnitCase');
+    $path = Path::join(UNISH_SANDBOX, 'commandUnitTest');
     $major = $this->drush_major_version();
     $major_plus1 = $major + 1;
 

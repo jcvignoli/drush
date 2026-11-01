@@ -8,7 +8,7 @@ namespace Unish;
  *
  *  @group base
  */
-class initCommandCase extends CommandUnishTestCase {
+class initCommandTest extends CommandUnishTestCase {
 
   function testInitCommand() {
     // Call `drush core-init`

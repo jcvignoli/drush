@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group commands
  */
-class fieldCase extends CommandUnishTestCase {
+class fieldTest extends CommandUnishTestCase {
 
   public function testField() {
     if (UNISH_DRUPAL_MAJOR_VERSION == 6) {

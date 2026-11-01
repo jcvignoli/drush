@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group base
  */
-class siteSetCommandCase extends CommandUnishTestCase {
+class siteSetTest extends CommandUnishTestCase {
 
   function testSiteSet() {
     if ($this->is_windows()) {

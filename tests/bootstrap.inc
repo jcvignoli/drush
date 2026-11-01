@@ -18,7 +18,85 @@ if ((!@include $local_vendor_path) && (!@include $global_vendor_path)) {
   return FALSE;
 }
 
+unish_load_dotenv();
 unish_init();
+
+/**
+ * Load UNISH_* environment variables from .env and .unish.env files.
+ * Precedence:
+ * 1. Existing environment variables (getenv)
+ * 2. .unish.env (checked in repo root and tests directory)
+ * 3. .env (checked in repo root and tests directory)
+ */
+function unish_load_dotenv() {
+  $drush_base_path = dirname(__DIR__);
+  $candidate_dirs = array($drush_base_path, __DIR__);
+
+  // Order of files to load: lowest precedence first (.env), then higher (.unish.env)
+  // so that .unish.env overwrites .env, but does NOT overwrite preexisting getenv().
+  $loaded = array();
+
+  // Load .env first
+  foreach ($candidate_dirs as $dir) {
+    $env_file = $dir . '/.env';
+    if (file_exists($env_file) && is_readable($env_file)) {
+      $vars = unish_parse_env_file($env_file);
+      foreach ($vars as $key => $val) {
+        $loaded[$key] = $val;
+      }
+    }
+  }
+
+  // Load .unish.env next (overwrites .env values)
+  foreach ($candidate_dirs as $dir) {
+    $unish_env_file = $dir . '/.unish.env';
+    if (file_exists($unish_env_file) && is_readable($unish_env_file)) {
+      $vars = unish_parse_env_file($unish_env_file);
+      foreach ($vars as $key => $val) {
+        $loaded[$key] = $val;
+      }
+    }
+  }
+
+  // Apply to environment only if not already set in existing environment
+  foreach ($loaded as $key => $val) {
+    if (getenv($key) === FALSE) {
+      putenv("$key=$val");
+      $_ENV[$key] = $val;
+      $_SERVER[$key] = $val;
+    }
+  }
+}
+
+/**
+ * Helper to parse a simple .env file for UNISH_* variables.
+ */
+function unish_parse_env_file($filepath) {
+  $vars = array();
+  $lines = file($filepath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  if ($lines === FALSE) {
+    return $vars;
+  }
+
+  foreach ($lines as $line) {
+    $line = trim($line);
+    // Skip empty lines and comment lines
+    if ($line === '' || $line[0] === '#') {
+      continue;
+    }
+    // Match KEY=VALUE or KEY="VALUE" or KEY='VALUE'
+    if (preg_match('/^\s*(UNISH_[A-Z0-9_]+)\s*=\s*(.*)$/i', $line, $matches)) {
+      $key = $matches[1];
+      $val = trim($matches[2]);
+      // Remove surrounding quotes if present
+      if (strlen($val) >= 2 && (($val[0] === '"' && substr($val, -1) === '"') || ($val[0] === "'" && substr($val, -1) === "'"))) {
+        $val = substr($val, 1, -1);
+      }
+      $vars[$key] = $val;
+    }
+  }
+  return $vars;
+}
 
 /**
  * Initialize our environment at the start of each run (i.e. suite).

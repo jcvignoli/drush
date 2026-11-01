@@ -10,7 +10,7 @@ namespace Unish;
  * @group commands
  * @group sql
  */
-class SqlConnectCase extends CommandUnishTestCase {
+class sqlConnectCreateTest extends CommandUnishTestCase {
 
   function testSqlConnect() {
     $sites = $this->setUpDrupal(1, TRUE);
@@ -66,3 +66,4 @@ class SqlConnectCase extends CommandUnishTestCase {
     $this->assertStringNotContainsString('Successful', $output);
   }
 }
+

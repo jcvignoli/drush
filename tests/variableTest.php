@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group commands
  */
-class VariableCase extends CommandUnishTestCase {
+class variableTest extends CommandUnishTestCase {
 
   function testVariable() {
     if (UNISH_DRUPAL_MAJOR_VERSION >= 8) {

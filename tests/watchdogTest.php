@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group commands
  */
-class WatchdogCase extends CommandUnishTestCase {
+class watchdogTest extends CommandUnishTestCase {
 
   function  testWatchdog() {
     $sites = $this->setUpDrupal(1, TRUE);

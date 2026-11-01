@@ -15,7 +15,7 @@ namespace Unish;
  *
  *  @group base
  */
-class backendCase extends CommandUnishTestCase {
+class backendTest extends CommandUnishTestCase {
   // Test to insure that calling drush_invoke_process() with 'dispatch-using-alias'
   // will build a command string that uses the alias instead of --root and --uri.
   function testDispatchUsingAlias() {

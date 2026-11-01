@@ -265,6 +265,45 @@ abstract class UnishTestCase extends TestCase {
     return parse_url(UNISH_DB_URL, PHP_URL_SCHEME);
   }
 
+  /**
+   * Validate that the database can be connected to using UNISH_DB_URL.
+   * If not, marks the test as skipped.
+   */
+  function checkDatabaseConnection() {
+    $driver = $this->db_driver(UNISH_DB_URL);
+    if ($driver === 'sqlite') {
+      return;
+    }
+
+    $parsed = parse_url(UNISH_DB_URL);
+    $host = isset($parsed['host']) ? $parsed['host'] : '127.0.0.1';
+    $port = isset($parsed['port']) ? $parsed['port'] : null;
+    $user = isset($parsed['user']) ? $parsed['user'] : '';
+    $pass = isset($parsed['pass']) ? $parsed['pass'] : '';
+
+    if ($driver === 'mysql' || $driver === 'mysqli') {
+      $dsn = "mysql:host=$host";
+      if ($port) {
+        $dsn .= ";port=$port";
+      }
+      try {
+        new \PDO($dsn, $user, $pass, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+      } catch (\Exception $e) {
+        $this->markTestSkipped("Cannot connect to database: " . $e->getMessage());
+      }
+    } elseif ($driver === 'pgsql') {
+      $dsn = "pgsql:host=$host";
+      if ($port) {
+        $dsn .= ";port=$port";
+      }
+      try {
+        new \PDO($dsn, $user, $pass, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+      } catch (\Exception $e) {
+        $this->markTestSkipped("Cannot connect to database: " . $e->getMessage());
+      }
+    }
+  }
+
   function defaultInstallationVersion() {
     // There's a leading dot in UNISH_DRUPAL_MINOR_VERSION
     return UNISH_DRUPAL_MAJOR_VERSION . UNISH_DRUPAL_MINOR_VERSION;
@@ -300,6 +339,9 @@ abstract class UnishTestCase extends TestCase {
       }
     }
     if ($fetchAndInstall) {
+      if ($install) {
+        $this->checkDatabaseConnection();
+      }
       $this->log('Cache MISS. Environment: ' . $source, 'verbose');
       // Build the site(s), install (if needed), then cache.
       foreach ($sites_subdirs as $subdir) {
@@ -316,7 +358,7 @@ abstract class UnishTestCase extends TestCase {
       }
     }
     // Write an empty sites.php if we are on D7+. Needed for multi-site on D8 and
-    // used on D7 in \Unish\saCase::testBackendHonorsAliasOverride.
+    // used on D7 in \Unish\siteAliasTest::testBackendHonorsAliasOverride.
     // Skip if there is no example.sites.php, e.g. in Drupal 9.
     if ($major_version >= 7 && !file_exists($root . '/sites/sites.php') && file_exists($root . '/sites/example.sites.php')) {
       copy($root . '/sites/example.sites.php', $root . '/sites/sites.php');
@@ -379,6 +421,7 @@ abstract class UnishTestCase extends TestCase {
 
     // If specified, install Drupal as a multi-site.
     if ($install) {
+      $this->checkDatabaseConnection();
       $options = array(
         'root' => $root,
         'db-url' => $this->db_url($env),

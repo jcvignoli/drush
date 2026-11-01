@@ -6,7 +6,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Tests for the 'drush' script itself
  */
-class drushScriptCase extends CommandUnishTestCase {
+class drushScriptTest extends CommandUnishTestCase {
 
   /**
    * Test `PHP_OPTIONS=... drush`

@@ -9,7 +9,7 @@ namespace Unish;
  *
  * @group base
  */
-class batchCase extends CommandUnishTestCase {
+class batchTest extends CommandUnishTestCase {
 
   public function testBatch() {
     $sites = $this->setUpDrupal(1, TRUE);

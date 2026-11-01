@@ -12,7 +12,7 @@
 
 namespace Unish;
 
-class contextCase extends CommandUnishTestCase {
+class contextTest extends CommandUnishTestCase {
 
   function setUpPaths() {
     $this->log("webroot: " . $this->webroot() . "\n", 'warning');
@@ -54,7 +54,7 @@ class contextCase extends CommandUnishTestCase {
     foreach ($this->paths as $key => $path) {
       $contents = <<<EOD
 <?php
-// Written by Drush's contextCase::setUp(). This file is safe to delete.
+// Written by Drush's contextTest::setUp(). This file is safe to delete.
 \$options['contextConfig'] = '$key';
 \$command_specific['unit-eval']['contextConfig'] = '$key-specific';
 EOD;
@@ -131,7 +131,7 @@ EOD;
    * Assure that options are loaded into right context and hierarchy is
    * respected by drush_get_option().
    *
-   * Stdin context not exercised here. See backendCase::testTarget().
+   * Stdin context not exercised here. See backendTest::testTarget().
    */
   function testContextHierarchy() {
     // The 'custom' config file has higher priority than cli and regular config files.

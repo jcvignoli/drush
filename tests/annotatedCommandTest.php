@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group base
  */
-class annotatedCommandCase extends CommandUnishTestCase {
+class annotatedCommandTest extends CommandUnishTestCase {
 
   public function testGlobal() {
     $globalExtensions = $this->setupGlobalExtensionsForTests();

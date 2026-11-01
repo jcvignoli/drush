@@ -8,7 +8,7 @@ namespace Unish;
  * @group quick-drupal
  * @group slow
  */
-class quickDrupalCase extends CommandUnishTestCase {
+class quickDrupalTest extends CommandUnishTestCase {
   /**
    * Path to test make files.
    */

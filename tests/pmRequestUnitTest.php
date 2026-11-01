@@ -12,7 +12,7 @@ namespace Unish;
  *
  * @group pm
  */
-class pmRequestUnitCase extends UnitUnishTestCase {
+class pmRequestUnitTest extends UnitUnishTestCase {
 
   /**
    * Tests for pm_parse_version() with semantic versioning.
@@ -224,7 +224,7 @@ class pmRequestUnitCase extends UnitUnishTestCase {
 
     // Since we're not on a bootstrapped site, the version string
     // for the following cases is interpreted as a core version.
-    // Tests on a bootstrapped site are in \pmRequestCase::testVersionParser()
+    // Tests on a bootstrapped site are in \pmRequestTest::testVersionParser()
     $version = '6.x';
     $version_parts = pm_parse_version($version);
     $this->assertEquals('6.x', $version_parts['drupal_version']);

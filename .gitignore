@@ -8,3 +8,4 @@ isolation/
 site
 # IDE config
 .idea/
+.unish.env

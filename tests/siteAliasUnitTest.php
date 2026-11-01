@@ -7,7 +7,7 @@ namespace Unish;
   *
   * @group base
   */
-class saUnitCase extends UnitUnishTestCase {
+class siteAliasUnitTest extends UnitUnishTestCase {
 
   /**
    * Tests _sitealias_array_merge().

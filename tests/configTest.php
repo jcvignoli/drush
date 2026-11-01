@@ -7,7 +7,7 @@ namespace Unish;
  * @group commands
  * @group config
  */
-class ConfigCase extends CommandUnishTestCase {
+class configTest extends CommandUnishTestCase {
 
   function set_up() {
     if (UNISH_DRUPAL_MAJOR_VERSION < 8) {

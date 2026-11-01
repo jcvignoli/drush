@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group commands
  */
-class ImageCase extends CommandUnishTestCase {
+class imageTest extends CommandUnishTestCase {
 
   function testImage() {
     if (UNISH_DRUPAL_MAJOR_VERSION == 6) {

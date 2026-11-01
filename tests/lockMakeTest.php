@@ -7,7 +7,7 @@ namespace Unish;
  * @group make
  * @group slow
  */
-class lockMakefileCase extends CommandUnishTestCase {
+class lockMakeTest extends CommandUnishTestCase {
   /**
    * Path to test make files.
    */

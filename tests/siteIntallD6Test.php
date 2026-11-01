@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group commands
  */
-class siteInstallD6Case extends CommandUnishTestCase {
+class siteIntallD6Test extends CommandUnishTestCase {
 
   function set_up() {
     if (UNISH_DRUPAL_MAJOR_VERSION != 6) {

@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group base
  */
-class commandCase extends CommandUnishTestCase {
+class commandTest extends CommandUnishTestCase {
   public function testInvoke() {
     $expected = array(
       'unit_drush_init',

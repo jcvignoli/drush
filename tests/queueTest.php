@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group commands
  */
-class QueueCase extends CommandUnishTestCase {
+class queueTest extends CommandUnishTestCase {
 
   function testQueue() {
     if (UNISH_DRUPAL_MAJOR_VERSION == 6) {

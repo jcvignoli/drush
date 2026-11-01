@@ -9,7 +9,7 @@ use Symfony\Component\Filesystem\Path;
  * @group make
  * @group slow
  */
-class generateMakeCase extends CommandUnishTestCase {
+class generateMakeTest extends CommandUnishTestCase {
   function testGenerateMake() {
     return $this->_testGenerateMake('devel', 'bootstrap');
   }

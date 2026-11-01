@@ -7,7 +7,7 @@ namespace Unish;
   *
   * @group base
   */
-class cacheCommandCase extends CommandUnishTestCase {
+class cacheCommandTest extends CommandUnishTestCase {
 
   function set_up() {
     if (!$this->getSites()) {

@@ -11,7 +11,7 @@ namespace Unish;
  *  @group slow
  *  @group commands
  */
-class roleCase extends CommandUnishTestCase {
+class roleTest extends CommandUnishTestCase {
 
   /**
    * Create, edit, block, and cancel users.

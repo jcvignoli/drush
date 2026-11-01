@@ -2,6 +2,8 @@
 
 namespace Unish;
 
+use PHPUnit\Framework\Attributes\Depends;
+
 require_once dirname(__FILE__) . '/../includes/context.inc';
 require_once dirname(__FILE__) . '/../includes/filesystem.inc';
 
@@ -10,7 +12,7 @@ require_once dirname(__FILE__) . '/../includes/filesystem.inc';
  *
  * @group commands
  */
-class archiveDumpCase extends CommandUnishTestCase {
+class archiveDumpTest extends CommandUnishTestCase {
   /**
    * archive-dump behaves slightly different when archiving a site installed
    * at sites/default so we make the test to use sites/default as the
@@ -85,6 +87,7 @@ class archiveDumpCase extends CommandUnishTestCase {
    *
    * @depends testArchiveDump
    */
+   #[Depends('testArchiveDump')]
    public function testArchiveRestore($dump_dest) {
     $restore_dest = UNISH_SANDBOX . DIRECTORY_SEPARATOR . 'restore';
     $options = array(
@@ -117,6 +120,7 @@ class archiveDumpCase extends CommandUnishTestCase {
    *
    * @depends testArchiveDumpNoCore
    */
+  #[Depends('testArchiveDumpNoCore')]
   public function testArchiveRestoreNoCore($dump_dest) {
     $root = $this->webroot();
     $original_codebase = drush_dir_md5($root);

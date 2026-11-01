@@ -5,7 +5,7 @@ namespace Unish;
 /**
   * @group pm
   */
-class pmReleaseNotesCase extends CommandUnishTestCase {
+class pmReleaseNotesTest extends CommandUnishTestCase {
 
   /**
    * Tests for pm-releasenotes command.
@@ -17,4 +17,3 @@ class pmReleaseNotesCase extends CommandUnishTestCase {
     $this->assertStringContainsString('SA-CORE-2011-001 - Drupal core - Multiple vulnerabilities', $output);
   }
 }
-

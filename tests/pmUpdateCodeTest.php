@@ -12,7 +12,7 @@ namespace Unish;
  *  @group slow
  *  @group pm
  */
-class pmUpdateCode extends CommandUnishTestCase {
+class pmUpdateCodeTest extends CommandUnishTestCase {
 
   /*
    * An array of modules to be downloaded and enabled.

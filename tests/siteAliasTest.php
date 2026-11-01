@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group base
  */
-class saCase extends CommandUnishTestCase {
+class siteAliasTest extends CommandUnishTestCase {
   /**
    * Covers the following responsibilities.
    *   - Dispatching a Drush command that uses strict option handling

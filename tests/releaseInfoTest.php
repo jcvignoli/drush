@@ -12,7 +12,7 @@ namespace Unish;
  *
  * @group pm
  */
-class releaseInfoCase extends UnitUnishTestCase {
+class releaseInfoTest extends UnitUnishTestCase {
 
   /**
    * Pick right release from the XML (dev, latest published+recommended, ...).

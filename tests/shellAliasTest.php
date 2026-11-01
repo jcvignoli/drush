@@ -7,7 +7,7 @@ namespace Unish;
  *
  * @group base
  */
-class shellAliasesCase extends CommandUnishTestCase {
+class shellAliasTest extends CommandUnishTestCase {
 
   /**
    * Write a config file that contains the shell-aliases array.

@@ -5,7 +5,7 @@ namespace Unish;
 /**
   * @group pm
   */
-class pmRequestCase extends CommandUnishTestCase {
+class pmRequestTest extends CommandUnishTestCase {
 
   /**
    * Tests for pm_parse_version() on a bootstrapped site.

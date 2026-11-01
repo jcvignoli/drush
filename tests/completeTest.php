@@ -5,7 +5,7 @@ namespace Unish;
 /**
  * @group base
  */
-class completeCase extends CommandUnishTestCase {
+class completeTest extends CommandUnishTestCase {
   /**
    * Write a config file that contains our configuration file.
    */
