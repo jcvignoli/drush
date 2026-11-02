@@ -123,6 +123,11 @@ function drush_preflight_prepare() {
 
   $classloader = require $vendor_path;
 
+  // Load compatibility EventSubscriberInterface before any library loads Symfony 8's version.
+  if (!interface_exists('Symfony\Component\EventDispatcher\EventSubscriberInterface', FALSE)) {
+    require_once DRUSH_BASE_PATH . '/src/Internal/Symfony/EventDispatcher/EventSubscriberInterface.php';
+  }
+
   require_once DRUSH_BASE_PATH . '/includes/startup.inc';
   require_once DRUSH_BASE_PATH . '/includes/bootstrap.inc';
   require_once DRUSH_BASE_PATH . '/includes/environment.inc';

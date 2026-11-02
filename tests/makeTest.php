@@ -374,6 +374,16 @@ class makeTest extends CommandUnishTestCase {
     // Silently skip bz2 test if bz2 is not installed.
     exec('which bzip2', $output, $whichBzip2ErrorCode);
     if (!$whichBzip2ErrorCode) {
+      $ch = curl_init('http://ftp.gnu.org/gnu/bison/bison-1.30.tar.bz2');
+      curl_setopt($ch, CURLOPT_NOBODY, true);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+      curl_exec($ch);
+      $err = curl_errno($ch);
+      curl_close($ch);
+      if ($err !== 0) {
+        $this->markTestSkipped('ftp.gnu.org is unreachable.');
+      }
       $this->runMakefileTest('bz2');
     }
     else {
@@ -624,6 +634,18 @@ class makeTest extends CommandUnishTestCase {
     // Silently skip subtree test if unzip is not installed.
     exec('which unzip', $output, $whichUnzipErrorCode);
     if (!$whichUnzipErrorCode) {
+      // Check if remote resource is available.
+      $ch = curl_init('https://github.com/downloads/gilbitron/Nivo-Slider/nivo-slider2.7.1.zip');
+      curl_setopt($ch, CURLOPT_NOBODY, true);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+      curl_exec($ch);
+      $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
+      if ($http_code >= 400 || $http_code === 0) {
+        $this->markTestSkipped('Nivo-slider download URL is permanently unavailable.');
+      }
+
       $config = $this->getMakefile('subtree');
 
       $makefile = $this->makefile_path . DIRECTORY_SEPARATOR . $config['makefile'];

@@ -417,6 +417,7 @@ abstract class UnishTestCase extends TestCase {
       $this->drush('pm-download', array("drupal-$version_string"), $options);
       // @todo This path is not proper in D8.
       mkdir($root . '/sites/all/drush', 0777, TRUE);
+      $this->patchDrupalForModernPhp($root);
     }
 
     // If specified, install Drupal as a multi-site.
@@ -483,8 +484,12 @@ abstract class UnishTestCase extends TestCase {
   }
 
   function writeSiteAlias($name, $root, $uri) {
+    $alias_dir = UNISH_SANDBOX . '/etc/drush';
+    if (!is_dir($alias_dir)) {
+      @mkdir($alias_dir, 0777, TRUE);
+    }
     $alias_definition = array($name => array('root' => $root,  'uri' => $uri));
-    file_put_contents(UNISH_SANDBOX . '/etc/drush/' . $name . '.alias.drushrc.php', $this->unish_file_aliases($alias_definition));
+    file_put_contents($alias_dir . '/' . $name . '.alias.drushrc.php', $this->unish_file_aliases($alias_definition));
   }
 
   /**
@@ -506,5 +511,81 @@ abstract class UnishTestCase extends TestCase {
       $major_version = UNISH_DRUPAL_MAJOR_VERSION;
     }
     return ($major_version < 8) ? '/sites/all' : '';
+  }
+
+  /**
+   * Patch Drupal core and bundled vendor dependencies for PHP 8.4+ compatibility.
+   */
+  public function patchDrupalForModernPhp($root) {
+    // 1. Drupal 8 PSR-3 Logger compatibility with psr/log v3
+    $loggerTrait = $root . '/vendor/psr/log/Psr/Log/LoggerTrait.php';
+    if (file_exists($loggerTrait)) {
+      $c = file_get_contents($loggerTrait);
+      $methods = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
+      foreach ($methods as $m) {
+        $c = str_replace(
+          "public function $m(\$message, array \$context = array())",
+          "public function $m(\\Stringable|string \$message, array \$context = []): void",
+          $c
+        );
+        $c = str_replace(
+          "public function $m(\$message, array \$context = [])",
+          "public function $m(\\Stringable|string \$message, array \$context = []): void",
+          $c
+        );
+      }
+      $c = str_replace(
+        'abstract public function log($level, $message, array $context = array());',
+        'abstract public function log($level, \\Stringable|string $message, array $context = []): void;',
+        $c
+      );
+      file_put_contents($loggerTrait, $c);
+    }
+
+    $loggerChannel = $root . '/core/lib/Drupal/Core/Logger/LoggerChannel.php';
+    if (file_exists($loggerChannel)) {
+      $c = file_get_contents($loggerChannel);
+      $c = str_replace(
+        'public function log($level, $message, array $context = []) {',
+        'public function log($level, \\Stringable|string $message, array $context = []): void {',
+        $c
+      );
+      file_put_contents($loggerChannel, $c);
+    }
+
+    // 2. Drupal 8 EntityResolverManager PHP 8.4 fix
+    $erm = $root . '/core/lib/Drupal/Core/Entity/EntityResolverManager.php';
+    if (file_exists($erm)) {
+      $c = file_get_contents($erm);
+      $c = str_replace(
+        'if (strpos($controller, \':\') === FALSE) {',
+        'if ($controller && strpos($controller, \':\') === FALSE) {',
+        $c
+      );
+      file_put_contents($erm, $c);
+    }
+
+    // 3. Drupal 8 Doctrine StaticReflectionClass PHP 8.4 fix
+    $doctrine = $root . '/vendor/doctrine/common/lib/Doctrine/Common/Reflection/StaticReflectionClass.php';
+    if (file_exists($doctrine)) {
+      $c = file_get_contents($doctrine);
+      $c = str_replace('public function getConstants()', '#[\\ReturnTypeWillChange] public function getConstants(?int $filter = null): array', $c);
+      $c = str_replace('public function newInstance($args)', '#[\\ReturnTypeWillChange] public function newInstance(...$args): object', $c);
+      $c = str_replace('public function newInstanceArgs($args)', '#[\\ReturnTypeWillChange] public function newInstanceArgs(array $args = []): ?object', $c);
+      $c = str_replace('public function newInstanceWithoutConstructor()', '#[\\ReturnTypeWillChange] public function newInstanceWithoutConstructor(): object', $c);
+      file_put_contents($doctrine, $c);
+    }
+
+    // 4. Drupal 7 error handler for PHP 8.4 deprecations
+    $errors = $root . '/includes/errors.inc';
+    if (file_exists($errors)) {
+      $c = file_get_contents($errors);
+      $c = str_replace(
+        'function _drupal_error_handler($errno, $message, $filename, $line, $context = array()) {',
+        'function _drupal_error_handler($errno, $message, $filename, $line, $context = array()) { if ($errno & (E_DEPRECATED | E_USER_DEPRECATED)) { return TRUE; }',
+        $c
+      );
+      file_put_contents($errors, $c);
+    }
   }
 }

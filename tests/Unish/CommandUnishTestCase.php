@@ -177,11 +177,12 @@ abstract class CommandUnishTestCase extends UnishTestCase {
     $this->log("Executing: $command", 'warning');
 
     try {
+      $process_env = array_merge(getenv(), $env ?: []);
       // Process uses a default timeout of 60 seconds, set it to 0 (none).
       if (is_string($command) && method_exists(Process::class, 'fromShellCommandline')) {
-        $this->process = Process::fromShellCommandline($command, $cd, NULL, $input, 0);
+        $this->process = Process::fromShellCommandline($command, $cd, $process_env, $input, 0);
       } else {
-        $this->process = new Process($command, $cd, NULL, $input, 0);
+        $this->process = new Process($command, $cd, $process_env, $input, 0);
       }
       if (!getenv('UNISH_NO_TIMEOUTS')) {
         $this->process->setTimeout($this->timeout)

@@ -16,7 +16,7 @@ class pmDownloadTest extends CommandUnishTestCase {
   }
 
   protected function exectedReadme() {
-    if (version_compare(UNISH_DRUPAL_MAJOR_VERSION . UNISH_DRUPAL_MINOR_VERSION, '8.8.0', '>=')) {
+    if (UNISH_DRUPAL_MAJOR_VERSION >= 8) {
       return 'README.md';
     }
     return 'README.txt';
@@ -67,7 +67,8 @@ class pmDownloadTest extends CommandUnishTestCase {
       'destination' => $destination,
     ) + $devel_options;
     $this->drush('pm-download', array('devel'), $options);
-    $this->assertFileExists($destination . '/devel/README.txt');
+    $readme1 = file_exists($destination . '/devel/README.md') ? 'README.md' : 'README.txt';
+    $this->assertFileExists($destination . '/devel/' . $readme1);
 
     // --destination with a relative path.
     $destination = 'test-destination2';
@@ -76,7 +77,8 @@ class pmDownloadTest extends CommandUnishTestCase {
       'destination' => $destination,
     ) + $devel_options;
     $this->drush('pm-download', array('devel'), $options);
-    $this->assertFileExists(UNISH_SANDBOX . '/' . $destination . '/devel/README.txt');
+    $readme2 = file_exists(UNISH_SANDBOX . '/' . $destination . '/devel/README.md') ? 'README.md' : 'README.txt';
+    $this->assertFileExists(UNISH_SANDBOX . '/' . $destination . '/devel/' . $readme2);
   }
 
   public function testSelect() {

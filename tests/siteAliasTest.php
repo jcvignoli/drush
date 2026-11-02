@@ -261,6 +261,9 @@ EOD;
    * may be stored.
    */
   public function testAliasFilesInDocroot() {
+    if (!$this->getSites()) {
+      $this->setUpDrupal(1, FALSE);
+    }
     $root = $this->webroot();
 
     $aliasContents = <<<EOD

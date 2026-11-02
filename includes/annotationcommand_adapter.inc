@@ -247,6 +247,8 @@ function annotationcommand_adapter_process_command() {
     $input,
     $output
   );
+  $formatterOptions = new FormatterOptions($annotationData->getArrayCopy(), $input->getOptions());
+  $commandData->setFormatterOptions($formatterOptions);
   $commandData->setIncludeOptionsInArgs($command['add-options-to-arguments']);
   $names = annotationcommand_adapter_command_names($command);
 

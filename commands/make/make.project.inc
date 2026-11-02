@@ -60,6 +60,8 @@ class DrushMakeProject {
    */
   protected $variant = 'profile-only';
 
+  public $type = NULL;
+
   /**
    * Set attributes and retrieve project information.
    */

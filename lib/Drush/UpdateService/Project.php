@@ -163,10 +163,10 @@ class Project {
       'translation' => 'project_translation',
       'utility' => 'project_drupalorg',
     );
-    $type = $project_info['type'];
+    $type = isset($project_info['type']) ? $project_info['type'] : '';
     // Probably unused but kept for possible legacy compat.
     $type = ($type == 'profile-legacy') ? 'profile' : $type;
-    $project_info['project_type'] = array_search($type, $project_types);
+    $project_info['project_type'] = array_search($type, $project_types) ?: 'module';
 
     // Extract project terms.
     $project_info['terms'] = array();
@@ -493,6 +493,10 @@ class Project {
       if (!empty($releases)) {
         break;
       }
+    }
+
+    if (empty($releases) && !empty($this->parsed['recommended']) && isset($this->parsed['releases'][$this->parsed['recommended']])) {
+      return $this->parsed['releases'][$this->parsed['recommended']];
     }
 
     return self::getBestRelease($releases);

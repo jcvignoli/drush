@@ -21,6 +21,10 @@ function drush_drupal_load_autoloader($drupal_root) {
       // "Point autoload.php to the proper vendor directory" - https://www.drupal.org/node/2404989
       $autoloader = drush_get_context('DRUSH_CLASSLOADER');
     }
+    elseif ($autoloader instanceof \Composer\Autoload\ClassLoader) {
+      // Prepend Drupal's autoloader so Drupal classes take precedence over Drush dependencies.
+      $autoloader->register(TRUE);
+    }
   }
   return $autoloader;
 }

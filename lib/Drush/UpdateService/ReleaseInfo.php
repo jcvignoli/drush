@@ -187,7 +187,7 @@ class ReleaseInfo {
     // releases for ANY contrib project. In this case, we'll default
     // to the best release, unless the user specified --select.
     $version_major = drush_drupal_major_version();
-    if (($select != 'always') && ($version_major < 7)) {
+    if (($select != 'always') && ($version_major <= 8)) {
       $bestRelease = Project::getBestRelease($releases);
       if (!empty($bestRelease)) {
         $message = dt('Drupal !major has reached EOL, so there are no stable releases for any contrib projects. Selected the best release, !project.', array('!major' => $version_major, '!project' => $bestRelease['name']));
