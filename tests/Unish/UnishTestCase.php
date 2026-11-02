@@ -114,12 +114,7 @@ abstract class UnishTestCase extends TestCase {
    * Useful for longer running tests to indicate they're working.
    */
   function tick() {
-    static $chars = array('/', '-', '\\', '|');
-    static $counter = 0;
-    // ANSI support is flaky on Win32, so don't try to do ticks there.
-    if (!$this->is_windows()) {
-      print $chars[($counter++ % 4)] . "\033[1D";
-    }
+    // Disabled ticker output to avoid ANSI escape characters appearing in console outputs.
   }
 
   /**
@@ -420,6 +415,10 @@ abstract class UnishTestCase extends TestCase {
       $this->patchDrupalForModernPhp($root);
     }
 
+    if (file_exists($root)) {
+      $this->patchDrupalForModernPhp($root);
+    }
+
     // If specified, install Drupal as a multi-site.
     if ($install) {
       $this->checkDatabaseConnection();
@@ -553,6 +552,47 @@ abstract class UnishTestCase extends TestCase {
       file_put_contents($loggerChannel, $c);
     }
 
+    $rfcLoggerTrait = $root . '/core/lib/Drupal/Core/Logger/RfcLoggerTrait.php';
+    if (file_exists($rfcLoggerTrait)) {
+      $c = file_get_contents($rfcLoggerTrait);
+      $methods = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
+      foreach ($methods as $m) {
+        $c = str_replace(
+          "public function $m(\$message, array \$context = []) {",
+          "public function $m(\\Stringable|string \$message, array \$context = []): void {",
+          $c
+        );
+      }
+      $c = str_replace(
+        'abstract public function log($level, $message, array $context = []);',
+        'abstract public function log($level, \\Stringable|string $message, array $context = []): void;',
+        $c
+      );
+      file_put_contents($rfcLoggerTrait, $c);
+    }
+
+    $dbLog = $root . '/core/modules/dblog/src/Logger/DbLog.php';
+    if (file_exists($dbLog)) {
+      $c = file_get_contents($dbLog);
+      $c = str_replace(
+        'public function log($level, $message, array $context = []) {',
+        '#[\ReturnTypeWillChange]' . "\n" . '  public function log($level, \\Stringable|string $message, array $context = []): void {',
+        $c
+      );
+      file_put_contents($dbLog, $c);
+    }
+
+    $sysLog = $root . '/core/modules/syslog/src/Logger/SysLog.php';
+    if (file_exists($sysLog)) {
+      $c = file_get_contents($sysLog);
+      $c = str_replace(
+        'public function log($level, $message, array $context = []) {',
+        '#[\ReturnTypeWillChange]' . "\n" . '  public function log($level, \\Stringable|string $message, array $context = []): void {',
+        $c
+      );
+      file_put_contents($sysLog, $c);
+    }
+
     // 2. Drupal 8 EntityResolverManager PHP 8.4 fix
     $erm = $root . '/core/lib/Drupal/Core/Entity/EntityResolverManager.php';
     if (file_exists($erm)) {
@@ -569,23 +609,202 @@ abstract class UnishTestCase extends TestCase {
     $doctrine = $root . '/vendor/doctrine/common/lib/Doctrine/Common/Reflection/StaticReflectionClass.php';
     if (file_exists($doctrine)) {
       $c = file_get_contents($doctrine);
-      $c = str_replace('public function getConstants()', '#[\\ReturnTypeWillChange] public function getConstants(?int $filter = null): array', $c);
-      $c = str_replace('public function newInstance($args)', '#[\\ReturnTypeWillChange] public function newInstance(...$args): object', $c);
-      $c = str_replace('public function newInstanceArgs($args)', '#[\\ReturnTypeWillChange] public function newInstanceArgs(array $args = []): ?object', $c);
-      $c = str_replace('public function newInstanceWithoutConstructor()', '#[\\ReturnTypeWillChange] public function newInstanceWithoutConstructor(): object', $c);
-      file_put_contents($doctrine, $c);
+      if (strpos($c, '#[\ReturnTypeWillChange]') === FALSE) {
+        $c = str_replace('public function getConstants()', '#[\\ReturnTypeWillChange] public function getConstants(?int $filter = null): array', $c);
+        $c = str_replace('public function newInstance($args)', '#[\\ReturnTypeWillChange] public function newInstance(...$args): object', $c);
+        $c = str_replace('public function newInstanceArgs(array $args = [])', '#[\\ReturnTypeWillChange] public function newInstanceArgs(array $args = []): ?object', $c);
+        $c = str_replace('public function newInstanceArgs($args)', '#[\\ReturnTypeWillChange] public function newInstanceArgs(array $args = []): ?object', $c);
+        $c = str_replace('public function newInstanceWithoutConstructor()', '#[\\ReturnTypeWillChange] public function newInstanceWithoutConstructor(): object', $c);
+        file_put_contents($doctrine, $c);
+      }
     }
 
-    // 4. Drupal 7 error handler for PHP 8.4 deprecations
+    // 4. Drupal 8 PDOStatement::fetchAll and setFetchMode PHP 8.4 compatibility
+    $statement = $root . '/core/lib/Drupal/Core/Database/Statement.php';
+    if (file_exists($statement)) {
+      $c = file_get_contents($statement);
+      if (strpos($c, 'fetchAll(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetchAll\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array { $column_index = $args[0] ?? NULL; $constructor_arguments = $args[1] ?? NULL;',
+          $c
+        );
+      }
+      if (strpos($c, 'setFetchMode(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function setFetchMode\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function setFetchMode(int $mode, mixed ...$args): true { $a1 = $args[0] ?? NULL; $a2 = $args[1] ?? [];',
+          $c
+        );
+      }
+      file_put_contents($statement, $c);
+    }
+
+    $statementInterface = $root . '/core/lib/Drupal/Core/Database/StatementInterface.php';
+    if (file_exists($statementInterface)) {
+      $c = file_get_contents($statementInterface);
+      if (strpos($c, 'fetchAll(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetchAll\([^\)]*\);/',
+          'public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array;',
+          $c
+        );
+      }
+      if (strpos($c, 'setFetchMode(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function setFetchMode\([^\)]*\);/',
+          'public function setFetchMode(int $mode, mixed ...$args): true;',
+          $c
+        );
+      }
+      if (strpos($c, 'fetch(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetch\([^\)]*\);/',
+          'public function fetch(int $mode = \PDO::FETCH_DEFAULT, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed;',
+          $c
+        );
+      }
+      file_put_contents($statementInterface, $c);
+    }
+
+    $statementPrefetch = $root . '/core/lib/Drupal/Core/Database/StatementPrefetch.php';
+    if (file_exists($statementPrefetch)) {
+      $c = file_get_contents($statementPrefetch);
+      if (strpos($c, 'fetchAll(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetchAll\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array { $column_index = $args[0] ?? NULL; $constructor_arguments = $args[1] ?? NULL;',
+          $c
+        );
+      }
+      if (strpos($c, 'setFetchMode(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function setFetchMode\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function setFetchMode(int $mode, mixed ...$args): true { $a1 = $args[0] ?? NULL; $a2 = $args[1] ?? [];',
+          $c
+        );
+        $c = str_replace(
+          '$this->fetchOptions = $this->defaultFetchOptions;' . "\n" . '  }',
+          '$this->fetchOptions = $this->defaultFetchOptions;' . "\n" . '    return true;' . "\n" . '  }',
+          $c
+        );
+      }
+      if (strpos($c, 'fetch(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetch\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function fetch(int $mode = \PDO::FETCH_DEFAULT, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed {',
+          $c
+        );
+      }
+      file_put_contents($statementPrefetch, $c);
+    }
+
+    $statementEmpty = $root . '/core/lib/Drupal/Core/Database/StatementEmpty.php';
+    if (file_exists($statementEmpty)) {
+      $c = file_get_contents($statementEmpty);
+      if (strpos($c, 'fetchAll(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetchAll\([^\)]*\)\s*\{/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array {',
+          $c
+        );
+      }
+      if (strpos($c, 'setFetchMode(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function setFetchMode\([^\)]*\)\s*\{[^\}]*\}/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function setFetchMode(int $mode, mixed ...$args): true { return true; }',
+          $c
+        );
+      }
+      if (strpos($c, 'fetch(int $mode') === FALSE) {
+        $c = preg_replace(
+          '/public function fetch\([^\)]*\)\s*\{[^\}]*\}/',
+          '#[\ReturnTypeWillChange]' . "\n" . '  public function fetch(int $mode = \PDO::FETCH_DEFAULT, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed { return false; }',
+          $c
+        );
+      }
+      file_put_contents($statementEmpty, $c);
+    }
+
+    // 4b. Drupal 8 Database Connection::doCommit PHP 8.4 PDO active transaction fix
+    $connectionFile = $root . '/core/lib/Drupal/Core/Database/Connection.php';
+    if (file_exists($connectionFile)) {
+      $c = file_get_contents($connectionFile);
+      $c = str_replace(
+        '$success = $this->connection->commit();',
+        '$success = TRUE; if ($this->connection->inTransaction()) { $success = $this->connection->commit(); }',
+        $c
+      );
+      file_put_contents($connectionFile, $c);
+    }
+
+    // 5. Drupal 8 core/includes/errors.inc E_STRICT deprecation and deprecation suppression in PHP 8.4
+    $d8Errors = $root . '/core/includes/errors.inc';
+    if (file_exists($d8Errors)) {
+      $c = file_get_contents($d8Errors);
+      $c = str_replace('E_STRICT =>', '2048 =>', $c);
+      $c = str_replace(
+        'function _drupal_error_handler_real($error_level, $message, $filename, $line, $context) {',
+        'function _drupal_error_handler_real($error_level, $message, $filename, $line, $context) { if ($error_level & (E_DEPRECATED | E_USER_DEPRECATED)) { return; }',
+        $c
+      );
+      file_put_contents($d8Errors, $c);
+    }
+
+    $d8Bootstrap = $root . '/core/includes/bootstrap.inc';
+    if (file_exists($d8Bootstrap)) {
+      $c = file_get_contents($d8Bootstrap);
+      $c = str_replace(
+        'function _drupal_error_handler($error_level, $message, $filename = NULL, $line = NULL, $context = NULL) {',
+        'function _drupal_error_handler($error_level, $message, $filename = NULL, $line = NULL, $context = NULL) { if ($error_level & (E_DEPRECATED | E_USER_DEPRECATED)) { return; }',
+        $c
+      );
+      file_put_contents($d8Bootstrap, $c);
+    }
+
+    // 6. Drupal 7 error handler for PHP 8.4 deprecations
+    $bootstrapInc = $root . '/includes/bootstrap.inc';
+    if (file_exists($bootstrapInc)) {
+      $c = file_get_contents($bootstrapInc);
+      $c = str_replace(
+        'function _drupal_error_handler($error_level, $message, $filename, $line) {',
+        'function _drupal_error_handler($error_level, $message, $filename, $line) { if ($error_level & (E_DEPRECATED | E_USER_DEPRECATED)) { return TRUE; }',
+        $c
+      );
+      file_put_contents($bootstrapInc, $c);
+    }
+
     $errors = $root . '/includes/errors.inc';
     if (file_exists($errors)) {
       $c = file_get_contents($errors);
+      $c = str_replace('E_STRICT =>', '2048 =>', $c);
       $c = str_replace(
         'function _drupal_error_handler($errno, $message, $filename, $line, $context = array()) {',
         'function _drupal_error_handler($errno, $message, $filename, $line, $context = array()) { if ($errno & (E_DEPRECATED | E_USER_DEPRECATED)) { return TRUE; }',
         $c
       );
+      $c = str_replace(
+        'function _drupal_error_handler_real($error_level, $message, $filename, $line) {',
+        'function _drupal_error_handler_real($error_level, $message, $filename, $line) { if ($error_level & (E_DEPRECATED | E_USER_DEPRECATED)) { return TRUE; }',
+        $c
+      );
       file_put_contents($errors, $c);
+    }
+
+    $databaseInc = $root . '/includes/database/database.inc';
+    if (file_exists($databaseInc)) {
+      $c = file_get_contents($databaseInc);
+      $c = str_replace(
+        'function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments = array()) {',
+        '#[\ReturnTypeWillChange]' . "\n" . '  public function fetchAll(int $mode = \PDO::FETCH_DEFAULT, mixed ...$args): array {',
+        $c
+      );
+      $c = str_replace(
+        'public function fetch($mode = NULL, $cursor_orientation = NULL, $cursor_offset = NULL) {',
+        '#[\ReturnTypeWillChange]' . "\n" . '  public function fetch(int $mode = \PDO::FETCH_BOTH, int $cursor_orientation = \PDO::FETCH_ORI_NEXT, int $cursor_offset = 0): mixed {',
+        $c
+      );
+      file_put_contents($databaseInc, $c);
     }
   }
 }

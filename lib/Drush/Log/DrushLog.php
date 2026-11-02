@@ -59,7 +59,8 @@ class DrushLog implements LoggerInterface {
   /**
    * {@inheritdoc}
    */
-  public function log($level, $message, array $context = array()) {
+  #[\ReturnTypeWillChange]
+  public function log($level, \Stringable|string $message, array $context = array()): void {
     // Translate the RFC logging levels into their Drush counterparts, more or
     // less.
     // @todo ALERT, CRITICAL and EMERGENCY are considered show-stopping errors,

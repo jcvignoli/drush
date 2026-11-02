@@ -65,6 +65,9 @@
       "Unish":        "tests/"
     }
   },
+  "config": {
+    "process-timeout": 0
+  },
   "scripts": {
     "test": "phpunit tests --configuration tests",
     "phar:install-tools": "curl -L https://github.com/box-project/box/releases/download/4.3.7/box.phar --output box.phar",
@@ -80,4 +83,3 @@
     }
   }
 }
-

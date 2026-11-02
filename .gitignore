@@ -1,4 +1,5 @@
 tests/phpunit.xml
+tests/.phpunit.result.cache
 vendor
 /lib/Console_Table-*
 box.phar

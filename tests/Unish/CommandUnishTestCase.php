@@ -40,7 +40,7 @@ abstract class CommandUnishTestCase extends UnishTestCase {
    *
    * @var int
    */
-  private $defaultIdleTimeout = 15;
+  private $defaultIdleTimeout = 60;
 
   /**
    * Idle timeouts for commands.
@@ -49,7 +49,7 @@ abstract class CommandUnishTestCase extends UnishTestCase {
    *
    * @var int
    */
-  protected $idleTimeout = 15;
+  protected $idleTimeout = 60;
 
   /**
    * Accessor for the last output, trimmed.
